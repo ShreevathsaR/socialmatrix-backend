@@ -1,16 +1,14 @@
-const express = require('express')
-const { fetchRedditData } = require('../controllers/fetchRedditData')
-
-const router = express.Router()
+const router = require('express').Router()
+const { getDailyTrends } = require('../controllers/fetchGoogleTrends')
 
 
 
 
-router.get('/:keyword', async (req, res) => {
-    const keyword = req.params.keyword
+router.get('/:region', async (req, res) => {
+    const region = req.params.region
 
     try {
-        const data = await fetchRedditData(keyword)
+        const data = await getDailyTrends(region)
 
         if (data) {
             res.status(200).json(data)
