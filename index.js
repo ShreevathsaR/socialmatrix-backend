@@ -5,9 +5,10 @@ const server = require('http').createServer(app);
 const axios = require('axios')
 const dotenv = require('dotenv')
 const youtubeRoutes = require('./routes/youtube')
-
+const aiRoutes = require('./routes/aiSuggestions')
 dotenv.config()
 
+app.use(express.json())
 
 app.get('/', async (req,res) => {
     res.status(200).json({"message":"This server works!1"})
@@ -31,6 +32,7 @@ app.get('/', async (req,res) => {
 // })
 
 app.use('/api', youtubeRoutes);
+app.use('/api', aiRoutes);
 
 
 server.listen(5000, () => console.log('Server running on port 5000'));
