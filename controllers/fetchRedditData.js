@@ -47,7 +47,7 @@ async function fetchRedditData(keyword) {
         try {
             const [postResponse, subredditResponse] = await Promise.all([
                 axios.get(`https://oauth.reddit.com/search`, {
-                    params: { q: keyword, limit: 15, sort: 'hot', t: 'month' },
+                    params: { q: keyword, limit: 15, sort: 'top', t: 'week' },
                     headers: { Authorization: `Bearer ${token}`, 'User-Agent': `pavan/0.1 by ${USERNAME}` }
                 }),
                 axios.get('https://oauth.reddit.com/subreddits/search', {

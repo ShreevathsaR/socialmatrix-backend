@@ -10,7 +10,15 @@ async function getDailyTrends(region) {
         }
 
         const data = await googleTrends.dailyTrends({ geo: region })
-        return JSON.parse(data)
+        const parsedData = JSON.parse(data)
+
+        const trendsArr = parsedData.default.trendingSearchesDays.flatMap(day => 
+            day.trendingSearches.map(search => ({
+                name: search.title.query,
+                url: search.articles?.[0]?.url || "no url available"
+            }))
+        )
+        return trendsArr
     } catch (error) {
         console.error("error fetching data: ", error)
     }
