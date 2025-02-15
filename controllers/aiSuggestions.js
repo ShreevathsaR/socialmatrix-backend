@@ -92,6 +92,15 @@ Provide your response in the following structured format, ensuring consistent he
 - Ensure the bulleting, numbering, and headings remain unchanged.  
 - Keep responses concise but informative.`;
 
+const parsedData = {
+    contentThemes: [],
+    postIdeas: [],
+    hashtags: [],
+    optimalPosting: {},
+    contentFormatRecommendation: [],
+    uniqueAngles: [],
+  };
+
 
     try {
         const response = await axios.post(
@@ -112,9 +121,101 @@ Provide your response in the following structured format, ensuring consistent he
                 }
             }
         );
+        
+        const result = response.data[0].generated_text;
 
-        //   console.log("Response:", response.data);
-        res.send(response.data[0]);
+
+        result.split('\n\n').forEach((section) => {
+            if (section.trim().startsWith("**Content Themes:**")) {
+              parsedData["contentThemes"] = section
+                .trim()
+                .split("\n")
+                .slice(1)
+                .map((line) => line.trim().replace(/^\d+\.\s*/,""));
+            }
+            if (section.trim().startsWith("**Specific Post Ideas:**")) {
+              const arrayOfLines = section
+                .trim()
+                .split("\n")
+                .slice(1)
+                .map((line) => line.replace("-", "").trim());
+          
+              let currentPost = {};
+          
+              arrayOfLines.forEach((line) => {
+                if (/^\d+\./.test(line)) {
+                  if (Object.keys(currentPost).length > 0) {
+                    parsedData.postIdeas.push(currentPost);
+                  }
+                  currentPost = { title: line.replace(/^\d+\.\s*/, "").trim() };
+                } else if (line.includes("Caption:")) {
+                  currentPost.caption = line.replace("**Caption:**", "").trim(); 
+                } else if (line.includes("Visual Element:")) {
+                  currentPost.visualElement = line.replace("**Visual Element:**", "").trim();
+                }
+          
+              });
+                if (Object.keys(currentPost).length > 0) {
+                  // Push the last post object
+                  parsedData.postIdeas.push(currentPost);
+                }
+          
+              // console.log(arrayOfLines)
+            }
+            if (section.trim().startsWith("**Hashtag Strategy:**")) {
+              parsedData["hashtags"] = section
+                .split("\n")
+                .slice(1)
+                .map((line) => line.replace("-", "").trim().split(" ")[1]);
+            }
+            if (section.trim().startsWith("**Optimal Posting Strategy:**")) {
+              const arrayOfLines = section.split("\n").slice(1);
+          
+              console.log(arrayOfLines)
+          
+              const finalObject = {
+                bestTimesToPost: "",
+                platformSpecific: "",
+                contentFormatSuggestion: "",
+              };
+          
+              let currentKey = "";
+          
+              arrayOfLines.forEach((line) => {
+                line = line.replace("-", "").trim(); // Remove hyphens and trim spaces
+          
+                if (line.startsWith("**Best times to post:**")) {
+                  currentKey = "bestTimesToPost";
+                  finalObject[currentKey] = line.replace("**Best times to post:**", "").trim();
+                } else if (line.startsWith("**Platform-specific recommendations:**")) {
+                  currentKey = "platformSpecific";
+                  finalObject[currentKey] = line.replace("**Platformspecific recommendations:**", "").trim();
+                } else if (line.startsWith("**Content format suggestions for each platform:**")) {
+                  currentKey = "contentFormatSuggestion";
+                  finalObject[currentKey] = line.replace("**Content format suggestions for each platform:**", "").trim();
+                } else if (currentKey) {
+                  // Append extra lines if they belong to the last detected key
+                  finalObject[currentKey] += " " + line;
+                }
+              });
+          
+              parsedData["optimalPosting"] = finalObject;
+            }
+            if (section.trim().startsWith("**Content Format Recommendations:**")) {
+              parsedData["contentFormatRecommendation"] = section
+                .split("\n")
+                .slice(1)
+                .map((line) => line.trim().replace(/^\d+\.\s*/,''));
+            }
+            if (section.trim().startsWith("**Unique Angles:**")) {
+              parsedData["uniqueAngles"] = section
+                .split("\n")
+                .slice(1)
+                .map((line) => line.trim().replace(/^\d+\.\s*/,''));
+            }
+          });
+
+          res.send(parsedData);
 
     } catch (error) {
         res.send(error.message);
