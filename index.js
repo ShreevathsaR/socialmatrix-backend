@@ -5,6 +5,7 @@ const server = require('http').createServer(app);
 const axios = require('axios')
 const dotenv = require('dotenv')
 const youtubeRoutes = require('./routes/youtube')
+const instagramRoutes = require('./routes/instagram')
 const aiRoutes = require('./routes/aiSuggestions')
 dotenv.config()
 
@@ -33,6 +34,7 @@ app.get('/', async (req,res) => {
 
 app.use('/api', youtubeRoutes);
 app.use('/api', aiRoutes);
+app.use('/api', instagramRoutes);
 
 
 server.listen(5000, () => console.log('Server running on port 5000'));

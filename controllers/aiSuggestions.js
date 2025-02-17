@@ -6,23 +6,11 @@ const getContentSuggestions = async (req, res) => {
 
     // const { prompt } = req.body;
 
-    const keyword = "Fitness and AI";
+    const keyword = "Deepseek AI";
 
-    const youtubeTopics = `
-    1. "How AI is Transforming Home Workouts in 2025"
-    2. "Best AI-Powered Fitness Apps for Weight Loss"
-    3. "Can AI Create the Perfect Workout Plan?"
-    4. "The Role of AI in Personalized Nutrition"
-    5. "AI vs Human Trainers: Who Gives Better Advice?"
-    `;
-
-    const redditTopics = `
-    1. "Has anyone tried an AI personal trainer? Does it work?"
-    2. "Best AI-based apps for tracking fitness goals"
-    3. "Can AI-generated meal plans help with weight loss?"
-    4. "Wearable tech + AI: The future of health tracking?"
-    5. "AI-powered fitness coaching vs real trainers – which is better?"
-    `;
+    const youtubeTopics = `China's Deepseek AI Explained,What is DeepSeek? How To Use It? | ChatGPT Killer,What’s Really Happening with DeepSeek,Chinese AI DeepSeek Censorship Exposed!,DeepSeek: चीन का AI जिसने Silicon Valley को हिला दिया! 😱 #deepseek #chinanews #donaldtrump,How He Makes $1,500/Month Using DeepSeek AI (Copy His Strategy!) 😯 | DeepSeek-R1,How To Use Deepseek AI! (Complete Beginners Guide),How China’s DeepSeek Came for Big AI,Can DeepSeek AI Really Code a Python Crypto Trading Bot in 5 Minutes?,Earn 100K/Month Using DeepSeek AI | Create Tool Website Using DeepSeek AI | DeepSeek R1 Full Course`;
+    
+    const redditTopics = `Is Deepseek really that good? : r/OpenAI, Deepseek V3 is absolutely astonishing : r/LocalLLaMA, I Broke DeepSeek AI 😂 : r/ChatGPT, DeepSeek AI is free, but it's literally down 99% of the time., DeepSeek AI is taking the world by storm. Since it is open ..., DeepSeek, AI and Legal Review : r/ediscovery, What Is China's DeepSeek and Why Is It Freaking Out ...`;    
 
     const prompt = `You are an expert social media content strategist. Based on the following data, generate a structured response in the exact format provided below.  
 
@@ -71,7 +59,7 @@ Provide your response in the following structured format, ensuring consistent he
 ... (Total 10-15 relevant hashtags)  
 
 **Optimal Posting Strategy:**  
-**Best times to post:** [Time ranges]  
+**Best times to post:** [Time ranges in IST] 
 **Platform-specific recommendations:** [YouTube – format, Instagram – format, Twitter – format, etc.]  
 **Content format suggestions for each platform:** [Format recommendations per platform]  
 
@@ -123,97 +111,96 @@ const parsedData = {
         );
         
         const result = response.data[0].generated_text;
+        console.log(result);
 
 
         result.split('\n\n').forEach((section) => {
-            if (section.trim().startsWith("**Content Themes:**")) {
-              parsedData["contentThemes"] = section
-                .trim()
-                .split("\n")
-                .slice(1)
-                .map((line) => line.trim().replace(/^\d+\.\s*/,""));
-            }
-            if (section.trim().startsWith("**Specific Post Ideas:**")) {
-              const arrayOfLines = section
-                .trim()
-                .split("\n")
-                .slice(1)
-                .map((line) => line.replace("-", "").trim());
-          
-              let currentPost = {};
-          
-              arrayOfLines.forEach((line) => {
-                if (/^\d+\./.test(line)) {
-                  if (Object.keys(currentPost).length > 0) {
-                    parsedData.postIdeas.push(currentPost);
-                  }
-                  currentPost = { title: line.replace(/^\d+\.\s*/, "").trim() };
-                } else if (line.includes("Caption:")) {
-                  currentPost.caption = line.replace("**Caption:**", "").trim(); 
-                } else if (line.includes("Visual Element:")) {
-                  currentPost.visualElement = line.replace("**Visual Element:**", "").trim();
-                }
-          
-              });
+          if (section.trim().startsWith("**Content Themes:**")) {
+            parsedData["contentThemes"] = section
+              .trim()
+              .split("\n")
+              .slice(1)
+              .map((line) => line.trim().replace(/^\d+\.\s*/,""));
+          }
+          if (section.trim().startsWith("**Specific Post Ideas:**")) {
+            const arrayOfLines = section
+              .trim()
+              .split("\n")
+              .slice(1)
+              .map((line) => line.replace("-", "").trim());
+        
+            let currentPost = {};
+        
+            arrayOfLines.forEach((line) => {
+              if (/^\d+\./.test(line)) {
                 if (Object.keys(currentPost).length > 0) {
-                  // Push the last post object
                   parsedData.postIdeas.push(currentPost);
                 }
-          
-              // console.log(arrayOfLines)
-            }
-            if (section.trim().startsWith("**Hashtag Strategy:**")) {
-              parsedData["hashtags"] = section
-                .split("\n")
-                .slice(1)
-                .map((line) => line.replace("-", "").trim().split(" ")[1]);
-            }
-            if (section.trim().startsWith("**Optimal Posting Strategy:**")) {
-              const arrayOfLines = section.split("\n").slice(1);
-          
-              console.log(arrayOfLines)
-          
-              const finalObject = {
-                bestTimesToPost: "",
-                platformSpecific: "",
-                contentFormatSuggestion: "",
-              };
-          
-              let currentKey = "";
-          
-              arrayOfLines.forEach((line) => {
-                line = line.replace("-", "").trim(); // Remove hyphens and trim spaces
-          
-                if (line.startsWith("**Best times to post:**")) {
-                  currentKey = "bestTimesToPost";
-                  finalObject[currentKey] = line.replace("**Best times to post:**", "").trim();
-                } else if (line.startsWith("**Platform-specific recommendations:**")) {
-                  currentKey = "platformSpecific";
-                  finalObject[currentKey] = line.replace("**Platformspecific recommendations:**", "").trim();
-                } else if (line.startsWith("**Content format suggestions for each platform:**")) {
-                  currentKey = "contentFormatSuggestion";
-                  finalObject[currentKey] = line.replace("**Content format suggestions for each platform:**", "").trim();
-                } else if (currentKey) {
-                  // Append extra lines if they belong to the last detected key
-                  finalObject[currentKey] += " " + line;
-                }
-              });
-          
-              parsedData["optimalPosting"] = finalObject;
-            }
-            if (section.trim().startsWith("**Content Format Recommendations:**")) {
-              parsedData["contentFormatRecommendation"] = section
-                .split("\n")
-                .slice(1)
-                .map((line) => line.trim().replace(/^\d+\.\s*/,''));
-            }
-            if (section.trim().startsWith("**Unique Angles:**")) {
-              parsedData["uniqueAngles"] = section
-                .split("\n")
-                .slice(1)
-                .map((line) => line.trim().replace(/^\d+\.\s*/,''));
-            }
-          });
+                currentPost = { title: line.replace(/^\d+\.\s*/, "").trim() };
+              } else if (line.includes("Caption:")) {
+                currentPost.caption = line.replace("**Caption:**", "").trim(); 
+              } else if (line.includes("Visual Element:")) {
+                currentPost.visualElement = line.replace("**Visual Element:**", "").trim();
+              }
+        
+            });
+              if (Object.keys(currentPost).length > 0) {
+                // Push the last post object
+                parsedData.postIdeas.push(currentPost);
+              }
+        
+            // console.log(arrayOfLines)
+          }
+          if (section.trim().startsWith("**Hashtag Strategy:**")) {
+            parsedData["hashtags"] = section
+              .split("\n")
+              .slice(1)
+              .map((line) => line.replace("-", "").trim().split(" ")[1]);
+          }
+          if (section.trim().startsWith("**Optimal Posting Strategy:**")) {
+            const arrayOfLines = section.split("\n").slice(1);
+        
+        
+            const finalObject = {
+              bestTimesToPost: "",
+              platformSpecific: "",
+              contentFormatSuggestion: "",
+            };
+        
+            let currentKey = "";
+        
+            arrayOfLines.forEach((line) => {
+              line = line.replace(/\*\*/g, "").trim(); // Remove hyphens and trim spaces
+        
+              if (line.includes("Best times to post:")) {
+                currentKey = "bestTimesToPost";
+                finalObject[currentKey] = line.replace("Best times to post:", "").trim();
+              } else if (line.includes("Platform-specific recommendations:")) {
+                currentKey = "platformSpecific";
+                finalObject[currentKey] = line.replace("Platform-specific recommendations:", "").trim();
+              } else if (line.includes("Content format suggestions for each platform:")) {
+                currentKey = "contentFormatSuggestion";
+                finalObject[currentKey] = line.replace("Content format suggestions for each platform:", "").trim();
+              } else if (currentKey) {
+                finalObject[currentKey] += " " + line; // Append additional lines
+              }
+            });
+        
+            parsedData["optimalPosting"] = finalObject;
+          }
+          if (section.trim().startsWith("**Content Format Recommendations:**")) {
+            parsedData["contentFormatRecommendation"] = section
+              .split("\n")
+              .slice(1)
+              .map((line) => line.trim().replace(/^\d+\.\s*|\[|\]/g, ''));
+          }
+          if (section.trim().startsWith("**Unique Angles:**")) {
+            parsedData["uniqueAngles"] = section
+              .split("\n")
+              .slice(1)
+              .map((line) => line.trim().replace(/^\d+\.\s*/,''));
+          }
+        });
 
           res.send(parsedData);
 

@@ -96,6 +96,7 @@ const getYoutubeAPIData = async (req,res) => {
                 publishedAt: new Date(video.publishedAt).toLocaleDateString(),
                 hashtags: video.hashtags
             })),
+            videoTitles: videoDetails.map(video => video.title),
             ...insights
         };
 
