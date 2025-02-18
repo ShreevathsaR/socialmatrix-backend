@@ -6,7 +6,7 @@ const router = express.Router()
 
 
 
-router.get('/:keyword', async (req, res) => {
+router.get('/twitter/:keyword', async (req, res) => {
     const keyword = req.params.keyword
     const filter = {
         since: "2024-12-01",
@@ -25,6 +25,25 @@ router.get('/:keyword', async (req, res) => {
         res.status(500).json({ error: "Internal server error" })
     }
 })
+
+
+//Official Twitter API
+// app.get('/twitter', async (req,res) => {
+
+//     try {
+//         const response = await axios.get('https://api.twitter.com/2/tweets/search/recent?query=%23trending',{
+//             headers: {
+//                 'Authorization': `Bearer ${process.env.TWITTER_BEARER_TOKEN}`
+//             }
+//         })
+//         console.log(response.data)
+    
+//         res.status(200).json(response.data)
+//     } catch (error) {
+//         res.send(401).json({message: error.message})
+//     }
+
+// })
 
 
 

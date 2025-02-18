@@ -4,7 +4,7 @@ const { getDailyTrends } = require('../controllers/fetchGoogleTrends')
 
 
 
-router.get('/:region', async (req, res) => {
+router.get('/googleTrends/:region', async (req, res) => {
     const region = req.params.region
 
     try {
