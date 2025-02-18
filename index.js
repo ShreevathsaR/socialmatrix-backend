@@ -35,6 +35,9 @@ app.get('/', async (req,res) => {
 app.use('/api', youtubeRoutes);
 app.use('/api', aiRoutes);
 app.use('/api', instagramRoutes);
+app.use('/api/reddit/', require('./routes/reddit'))
+app.use('/api/googleTrends/', require('./routes/googleTrends'))
+app.use('/api/twitter/', require('./routes/twitter'))
 
 
 server.listen(5000, () => console.log('Server running on port 5000'));
