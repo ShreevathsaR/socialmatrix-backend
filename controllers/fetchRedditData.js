@@ -7,6 +7,7 @@ const CLIENT_ID = process.env.CLIENT_ID
 const CLIENT_SECRET = process.env.CLIENT_SECRET
 const USERNAME = process.env.USERNAME
 const APP_NAME = process.env.APP_NAME
+const HUGGING_FACE_API = process.env.HUGGING_FACE_API
 
 
 
@@ -62,6 +63,38 @@ async function getTopComments(postId, token) {
 }
 
 
+async function sentimentAnalysis(text) {
+    try {
+        const response = await axios.post(
+            'https://api-inference.huggingface.co/models/cardiffnlp/twitter-roberta-base-sentiment',
+            { inputs: [text] },
+            {
+                headers: { Authorization: `Bearer ${HUGGING_FACE_API}` }
+            }
+        )
+
+        const sentiments = response.data[0]
+        const labelMapping = {
+            LABEL_0: "Negative",
+            LABEL_1: "Neutral",
+            LABEL_2: "Positive"
+        }
+        const sentimentScores = sentiments.reduce((acc, sentiment) => {
+            acc[labelMapping[sentiment.label]] = sentiment.score
+            return acc
+        }, {})
+
+        return {
+            sentiment: labelMapping[sentiments[0].label],
+            scores: sentimentScores
+        }
+    } catch (error) {
+        console.error("error analyzing sentiment: ", error.message)
+        return { sentiment: 'unknown', scores: {} }
+    }
+}
+
+
 async function fetchRedditData(keyword) {
     const token = await getRedditAccessToken()
 
@@ -80,6 +113,8 @@ async function fetchRedditData(keyword) {
 
             const posts = await Promise.all(
                 postResponse.data.data.children.map(async (post, index) => {
+                    const sentiment = await sentimentAnalysis(post.data.title)
+
                     let postData = {
                         title: post.data.title,
                         subreddit: post.data.subreddit,
@@ -88,7 +123,7 @@ async function fetchRedditData(keyword) {
                         downvotes: Math.round((post.data.ups / post.data.upvote_ratio) - post.data.ups),
                         upvoteRatio: post.data.upvote_ratio * 100,
                         comments: post.data.num_comments,
-                        totalInteraction: Math.round(post.data.upvotes + post.data.num_comments),
+                        sentiment: sentiment.sentiment,
                         url: post.data.url
                     }
                     if (index < 3) {
