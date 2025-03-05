@@ -23,7 +23,7 @@ async function autoScroll(page) {
 }
 
 async function getTweets(keyword, filters) {
-    const browser = await puppeteer.launch({ headless: false })
+    const browser = await puppeteer.launch({ headless: false, executablePath: '/usr/bin/brave-browser' })
     const page = await browser.newPage()
 
     let searchUrl = `https://nitter.net/search?f=tweets&q=%23${encodeURIComponent(keyword)}&since=${filters.since}&until=${filters.until}`

@@ -50,7 +50,7 @@ async function scrapeInstagram(keyword) {
 
 const instagramData = async (req, res) => {
     try {
-        const { keyword } = req.body;
+        const keyword   = req.params.keyword;
 
         if (!keyword) {
             return res.status(400).json({ error: 'Keyword is required' });

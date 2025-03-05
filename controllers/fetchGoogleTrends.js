@@ -9,8 +9,15 @@ async function getDailyTrends(region) {
             throw new Error("Invalid region. Provide a valid country code (e.g., 'US', 'IN', 'GB').")
         }
 
-        const data = await googleTrends.dailyTrends({ geo: region })
-        const parsedData = JSON.parse(data)
+        console.log("Fetch trends for region:", region)
+
+        const data = await googleTrends.dailyTrends({ geo: region });
+
+        if (!data || !data.startsWith("{")) {
+            throw new Error("Invalid response from Google Trends API. Response is not JSON.");
+        }
+
+        const parsedData = JSON.parse(data);
 
         const trendsArr = parsedData.default.trendingSearchesDays.flatMap(day => 
             day.trendingSearches.map(search => ({
@@ -18,11 +25,13 @@ async function getDailyTrends(region) {
                 url: search.articles?.[0]?.url || "no url available"
             }))
         )
-        return trendsArr
+        return trendsArr;
     } catch (error) {
-        console.error("error fetching data: ", error)
+        console.error("Error fetching data: ", error);
+        return [];
     }
 }
+
 
 
 
